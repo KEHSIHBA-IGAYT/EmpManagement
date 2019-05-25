@@ -1,0 +1,667 @@
+version: "2"
+networks:
+  xor-fabric:
+    external:
+      name: xor-fabric
+
+
+#############################################################################################
+######################################    Kafka    ##########################################
+#############################################################################################
+
+services:
+
+  kafka0:
+    hostname: kafka0.empmanagement.com
+    image: hyperledger/fabric-kafka
+    networks:
+      xor-fabric:
+        aliases:
+        - kafka0.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - KAFKA_MESSAGE_MAX_BYTES=103809024
+    - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+    - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+    - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+    - KAFKA_MIN_INSYNC_REPLICAS=2
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    - KAFKA_BROKER_ID=0
+
+  kafka1:
+    hostname: kafka1.empmanagement.com
+    image: hyperledger/fabric-kafka
+    networks:
+      xor-fabric:
+        aliases:
+        - kafka1.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - KAFKA_MESSAGE_MAX_BYTES=103809024
+    - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+    - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+    - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+    - KAFKA_MIN_INSYNC_REPLICAS=2
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    - KAFKA_BROKER_ID=1
+
+  kafka2:
+    hostname: kafka2.empmanagement.com
+    image: hyperledger/fabric-kafka
+    networks:
+      xor-fabric:
+        aliases:
+        - kafka2.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - KAFKA_MESSAGE_MAX_BYTES=103809024
+    - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+    - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+    - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+    - KAFKA_MIN_INSYNC_REPLICAS=2
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    - KAFKA_BROKER_ID=2
+  kafka3:
+    hostname: kafka3.empmanagement.com
+    image: hyperledger/fabric-kafka
+    networks:
+      xor-fabric:
+        aliases:
+        - kafka3.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - KAFKA_MESSAGE_MAX_BYTES=103809024
+    - KAFKA_REPLICA_FETCH_MAX_BYTES=103809024
+    - KAFKA_UNCLEAN_LEADER_ELECTION_ENABLE=false
+    - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+    - KAFKA_MIN_INSYNC_REPLICAS=2
+    - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    - KAFKA_BROKER_ID=3
+
+#############################################################################################
+######################################    Zookeepers     ####################################
+#############################################################################################
+
+  zookeeper0:
+    hostname: zookeeper0
+    image: hyperledger/fabric-zookeeper
+    networks:
+      xor-fabric:
+        aliases:
+        - zookeeper0.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - ZOO_MY_ID=1
+    - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+
+  zookeeper1:
+    hostname: zookeeper1
+    image: hyperledger/fabric-zookeeper
+    networks:
+      xor-fabric:
+        aliases:
+        - zookeeper1.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - ZOO_MY_ID=2
+    - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+    
+  zookeeper2:
+    hostname: zookeeper2
+    image: hyperledger/fabric-zookeeper
+    networks:
+      xor-fabric:
+        aliases:
+        - zookeeper2.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - ZOO_MY_ID=3
+    - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+
+
+#############################################################################################
+######################################    Orderers     ######################################
+#############################################################################################
+
+  orderer0:
+    hostname: orderer0.empmanagement.com
+    image: hyperledger/fabric-orderer
+    networks:
+      xor-fabric:
+        aliases:
+        - orderer0.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - ORDERER_GENERAL_LOGLEVEL=debug
+    - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+    - ORDERER_GENERAL_GENESISMETHOD=file
+    - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+    - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+    - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+    - ORDERER_GENERAL_TLS_ENABLED=true
+    - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+    - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+    - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+    - ORDERER_KAFAK_RETRY_SHORTTOTAL=30s
+    - ORDERER_KAFKA_VERBOSE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+    - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+    - ./crypto-config/ordererOrganizations/empmanagement.com/orderers/orderer0.empmanagement.com/msp:/var/hyperledger/orderer/msp
+    - ./crypto-config/ordererOrganizations/empmanagement.com/orderers/orderer0.empmanagement.com/tls/:/var/hyperledger/orderer/tls
+    ports:
+      - 6050:6050
+
+  orderer1:
+    hostname: orderer1.empmanagement.com
+    image: hyperledger/fabric-orderer
+    networks:
+      xor-fabric:
+        aliases:
+        - orderer1.empmanagement.com
+    environment:
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - ORDERER_GENERAL_LOGLEVEL=debug
+    - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+    - ORDERER_GENERAL_GENESISMETHOD=file
+    - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+    - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+    - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+    - ORDERER_GENERAL_TLS_ENABLED=true
+    - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+    - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+    - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    - ORDERER_KAFKA_RETRY_SHORTINTERVAL=1s
+    - ORDERER_KAFAK_RETRY_SHORTTOTAL=30s
+    - ORDERER_KAFKA_VERBOSE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+    - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+    - ./crypto-config/ordererOrganizations/empmanagement.com/orderers/orderer1.empmanagement.com/msp:/var/hyperledger/orderer/msp
+    - ./crypto-config/ordererOrganizations/empmanagement.com/orderers/orderer1.empmanagement.com/tls/:/var/hyperledger/orderer/tls
+    ports:
+        - 6051:6051
+
+
+#############################################################################################
+#########################################     CAs     #######################################
+#############################################################################################
+  univ1CA:
+    hostname: ca.univ1.education.com
+    image: hyperledger/fabric-ca
+    networks:
+      xor-fabric:
+        aliases:
+        - ca_univ1
+    ports:
+      - "7054:7054"
+    environment:
+    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    - FABRIC_CA_SERVER_CA_NAME=ca-univ1
+    - FABRIC_CA_SERVER_TLS_ENABLED=true
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.univ1.education.com-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/90d3cb46eafde3b6177cb07b9639d9fd1cb5ffd2a4393814272c80ca93d3502d_sk
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.univ1.education.com-cert.pem
+      --ca.keyfile /etc/hyperledger/fabric-ca-server-config/90d3cb46eafde3b6177cb07b9639d9fd1cb5ffd2a4393814272c80ca93d3502d_sk -b admin:adminpw
+      -d'
+    volumes:
+    - ./crypto-config/peerOrganizations/univ1.education.com/ca/:/etc/hyperledger/fabric-ca-server-config
+
+  employer1CA:
+    hostname: ca.employer1.empdir.com
+    image: hyperledger/fabric-ca
+    networks:
+      xor-fabric:
+        aliases:
+        - ca_employer1
+    ports:
+      - "8054:8054"
+    environment:
+    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    - FABRIC_CA_SERVER_CA_NAME=ca-employer1
+    - FABRIC_CA_SERVER_TLS_ENABLED=true
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.employer1.empdir.com-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/7c1b0e4e243664d4d66b25a3b5b1402e1335aeb613a013401b4ce66f24b868ea_sk
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.employer1.empdir.com-cert.pem
+      --ca.keyfile /etc/hyperledger/fabric-ca-server-config/7c1b0e4e243664d4d66b25a3b5b1402e1335aeb613a013401b4ce66f24b868ea_sk -b admin:adminpw
+      -d'
+    volumes:
+    - ./crypto-config/peerOrganizations/employer1.empdir.com/ca/:/etc/hyperledger/fabric-ca-server-config
+
+  employer2CA:
+    hostname: ca.employer2.empdir.com
+    image: hyperledger/fabric-ca
+    networks:
+      xor-fabric:
+        aliases:
+        - ca_employer2
+    ports:
+      - "9054:9054"
+    environment:
+    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    - FABRIC_CA_SERVER_CA_NAME=ca-employer2
+    - FABRIC_CA_SERVER_TLS_ENABLED=true
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.employer2.empdir.com-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/078035a9755bba2aa0144ec95e14f058cb4675713746887a8b2e36b2977c40b9_sk
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.employer2.empdir.com-cert.pem
+      --ca.keyfile /etc/hyperledger/fabric-ca-server-config/078035a9755bba2aa0144ec95e14f058cb4675713746887a8b2e36b2977c40b9_sk -b admin:adminpw
+      -d'
+    volumes:
+    - ./crypto-config/peerOrganizations/employer2.empdir.com/ca/:/etc/hyperledger/fabric-ca-server-config
+
+  empdeskCA:
+    hostname: ca.empdesk.empdir.com
+    image: hyperledger/fabric-ca
+    networks:
+      xor-fabric:
+        aliases:
+        - ca_empdesk
+    ports:
+      - "10054:10054"
+    environment:
+    - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    - FABRIC_CA_SERVER_CA_NAME=ca-empdesk
+    - FABRIC_CA_SERVER_TLS_ENABLED=true
+    - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.empdesk.empdir.com-cert.pem
+    - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/232c7bf64d6084b1cf901c43094aab341c2aea1cab4afa1d729ec66e2819ce52_sk
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.empdesk.empdir.com-cert.pem
+      --ca.keyfile /etc/hyperledger/fabric-ca-server-config/232c7bf64d6084b1cf901c43094aab341c2aea1cab4afa1d729ec66e2819ce52_sk -b admin:adminpw
+      -d'
+    volumes:
+    - ./crypto-config/peerOrganizations/empdesk.empdir.com/ca/:/etc/hyperledger/fabric-ca-server-config
+
+
+#############################################################################################
+######################################  Couch DBs  ##########################################
+#############################################################################################
+
+  univ1Couch0:
+    hostname: couch0.univ1.education.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - univ1Couch0
+    ports:
+      - "5984:5984"
+
+  univ1Couch1:
+    hostname: couch1.univ1.education.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - univ1Couch1
+    ports:
+      - "5984:5985"
+
+  employer1Couch0:
+    hostname: couch0.employer1.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - employer1Couch0
+    ports:
+      - "5984:6984"
+      
+  employer1Couch1:
+    hostname: couch1.employer1.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - employer1Couch1
+    ports:
+      - "5984:6985"
+      
+  employer2Couch0:
+    hostname: couch0.employer2.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - employer2Couch0
+    ports:
+      - "5984:7984"
+      
+  employer2Couch1:
+    hostname: couch1.employer2.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - employer2Couch1
+    ports:
+      - "5984:7985"
+      
+  empdeskCouch0:
+    hostname: couch0.empdesk.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - empdeskCouch0
+    ports:
+      - "5984:8984"
+      
+  empdeskCouch1:
+    hostname: couch0.empdesk.empdir.com
+    image: hyperledger/fabric-couchdb
+    networks:
+      xor-fabric:
+        aliases:
+        - empdeskCouch0
+    ports:
+      - "5984:8985"
+
+#############################################################################################
+######################################       Peers       ####################################
+#############################################################################################
+
+  peer0_univ1:
+    hostname: peer0.univ1.education.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer0.univ1.education.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer0.univ1.education.com
+    - CORE_PEER_ADDRESS=peer0.univ1.education.com:7051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.univ1.education.com:7051
+    - CORE_PEER_LOCALMSPID=univ1MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=univ1Couch0:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.univ1.education.com:7051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/univ1.education.com/peers/peer0.univ1.education.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/univ1.education.com/peers/peer0.univ1.education.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 7051:7051
+      - 7053:7053
+    depends_on:
+      - orderer0
+      - univ1Couch0
+
+  peer1_univ1:
+    hostname: peer1.univ1.education.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer1.univ1.education.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer1.univ1.education.com
+    - CORE_PEER_ADDRESS=peer1.univ1.education.com:8051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.univ1.education.com:8051
+    - CORE_PEER_LOCALMSPID=univ1MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=univ1Couch1:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.univ1.education.com:8051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/univ1.education.com/peers/peer1.univ1.education.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/univ1.education.com/peers/peer1.univ1.education.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 8051:8051
+      - 8053:8053
+    depends_on:
+      - orderer0
+      - univ1Couch1
+
+  peer0_employer1:
+    hostname: peer0.employer1.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer0.employer1.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer0.employer1.empdir.com
+    - CORE_PEER_ADDRESS=peer0.employer1.empdir.com:9051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.employer1.empdir.com:9051
+    - CORE_PEER_LOCALMSPID=employer1MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=employer1Couch0:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.employer1.empdir.com:9051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/employer1.empdir.com/peers/peer0.employer1.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/employer1.empdir.com/peers/peer0.employer1.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 9051:9051
+      - 9053:9053
+    depends_on:
+      - orderer1
+      - employer1Couch0
+
+  peer1_employer1:
+    hostname: peer1.employer1.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer1.employer1.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer1.employer1.empdir.com
+    - CORE_PEER_ADDRESS=peer1.employer1.empdir.com:10051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.employer1.empdir.com:10051
+    - CORE_PEER_LOCALMSPID=employer1MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=employer1Couch1:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.employer1.empdir.com:10051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/employer1.empdir.com/peers/peer1.employer1.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/employer1.empdir.com/peers/peer1.employer1.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 10051:10051
+      - 10053:10053
+    depends_on:
+      - orderer1
+      - employer1Couch1
+
+  peer0_employer2:
+    hostname: peer0.employer2.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer0.employer2.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer0.employer2.empdir.com
+    - CORE_PEER_ADDRESS=peer0.employer2.empdir.com:11051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.employer2.empdir.com:11051
+    - CORE_PEER_LOCALMSPID=employer2MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=employer2Couch0:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.employer2.empdir.com:11051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/employer2.empdir.com/peers/peer0.employer2.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/employer2.empdir.com/peers/peer0.employer2.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 11051:11051
+      - 11053:11053
+    depends_on:
+      - orderer0
+      - employer2Couch0
+
+  peer1_employer2:
+    hostname: peer1.employer2.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer1.employer2.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer1.employer2.empdir.com
+    - CORE_PEER_ADDRESS=peer1.employer2.empdir.com:12051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.employer2.empdir.com:12051
+    - CORE_PEER_LOCALMSPID=employer2MSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=employer2Couch1:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.employer2.empdir.com:12051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/employer2.empdir.com/peers/peer1.employer2.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/employer2.empdir.com/peers/peer1.employer2.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 12051:12051
+      - 12053:12053
+    depends_on:
+      - orderer0
+      - employer2Couch1
+
+  peer0_empdesk:
+    hostname: peer0.empdesk.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer0.empdesk.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer0.empdesk.empdir.com
+    - CORE_PEER_ADDRESS=peer0.empdesk.empdir.com:13051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.empdesk.empdir.com:13051
+    - CORE_PEER_LOCALMSPID=empdeskMSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=empdeskCouch0:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.empdesk.empdir.com:13051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/empdesk.empdir.com/peers/peer0.empdesk.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/empdesk.empdir.com/peers/peer0.empdesk.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 13051:13051
+      - 13053:13053
+    depends_on:
+      - orderer1
+      - empdeskCouch0
+
+  peer1_empdesk:
+    hostname: peer1.empdesk.empdir.com
+    image: hyperledger/fabric-peer
+    networks:
+      xor-fabric:
+        aliases:
+        - peer1.empdesk.empdir.com
+    environment:
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_TLS_ENABLED=true
+    - CORE_PEER_GOSSIP_USELEADERELECTION=true
+    - CORE_PEER_GOSSIP_ORGLEADER=false
+    - CORE_PEER_PROFILE_ENABLED=true
+    - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+    - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+    - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+    - CORE_PEER_ID=peer1.empdesk.empdir.com
+    - CORE_PEER_ADDRESS=peer1.empdesk.empdir.com:14051
+    - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.empdesk.empdir.com:14051
+    - CORE_PEER_LOCALMSPID=empdeskMSP
+    - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=xor-fabric
+    - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+    - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=empdeskCouch1:5984
+    - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.empdesk.empdir.com:14051
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+    - /var/run/:/host/var/run/
+    - ./crypto-config/peerOrganizations/empdesk.empdir.com/peers/peer1.empdesk.empdir.com/msp:/etc/hyperledger/fabric/msp
+    - ./crypto-config/peerOrganizations/empdesk.empdir.com/peers/peer1.empdesk.empdir.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - 14051:14051
+      - 14053:14053
+    depends_on:
+      - orderer1
+      - empdeskCouch1      

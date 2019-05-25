@@ -1,0 +1,40 @@
+
+OrdererOrgs:
+  - Name: Orderer
+    Domain: empmanagement.com
+    Specs:
+    - Hostname: orderer0
+    - Hostname: orderer1
+
+PeerOrgs:
+  - Name: Univ1
+    Domain: univ1.education.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+
+  - Name: Employer1
+    Domain: employer1.empdir.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+
+  - Name: Employer2
+    Domain: employer2.empdir.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+
+  - Name: Empdesk
+    Domain: empdesk.empdir.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1

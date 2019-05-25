@@ -1,0 +1,196 @@
+---
+Organizations:
+
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/empmanagement.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+    - &Univ1
+        Name: Univ1MSP
+        ID: Univ1MSP
+        MSPDir: crypto-config/peerOrganizations/univ1.education.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Univ1.admin', 'Univ1.peer', 'Univ1.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Univ1.admin', 'Univ1.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Univ1.admin')"
+        AnchorPeers:
+            - Host: peer0.univ1.education.com
+              Port: 7051
+
+    - &Employer1
+        Name: Employer1MSP
+        ID: Employer1MSP
+        MSPDir: crypto-config/peerOrganizations/employer1.empdir.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Employer1MSP.admin', 'Employer1MSP.peer', 'Employer1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Employer1MSP.admin', 'Employer1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Employer1MSP.admin')"
+        AnchorPeers:
+            - Host: peer0.employer1.empdir.com
+              Port: 9051
+
+    - &Employer2
+        Name: Employer2MSP
+        ID: Employer2MSP
+        MSPDir: crypto-config/peerOrganizations/employer2.empdir.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Employer2MSP.admin', 'Employer2MSP.peer', 'Employer2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Employer2MSP.admin', 'Employer2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Employer2MSP.admin')"
+        AnchorPeers:
+            - Host: peer0.employer2.empdir.com
+              Port: 11051
+
+
+
+    - &Empdesk
+        Name: EmpdeskMSP
+        ID: EmpdeskMSP
+        MSPDir: crypto-config/peerOrganizations/empdesk.empdir.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('EmpdeskMSP.admin', 'EmpdeskMSP.peer', 'EmpdeskMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('EmpdeskMSP.admin', 'EmpdeskMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('EmpdeskMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.empdesk.empdir.com
+              Port: 13051
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_3: true
+    Orderer: &OrdererCapabilities
+        V1_1: true
+    Application: &ApplicationCapabilities
+        V1_3: true
+        V1_2: false
+        V1_1: false
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    Capabilities:
+        <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+    OrdererType: kafka
+    Addresses:
+        - orderer0.empmanagement.com:6050
+        - orderer1.empmanagement.com:6051
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9091
+            - 127.0.0.1:9092
+            - 127.0.0.1:9093
+            - 127.0.0.1:9094
+            
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+    Policies:
+        # Who may invoke the 'Deliver' API
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        # Who may invoke the 'Broadcast' API
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        # By default, who may modify elements at this config level
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    Capabilities:
+        <<: *ChannelCapabilities
+
+Profiles:
+
+    EmpOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            EmpConsortium:
+                Organizations:
+                    - *Univ1
+                    - *Employer1
+                    - *Employer2
+                    - *Empdesk
+    EChannel:
+        Consortium: EmpConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Univ1
+                - *Employer1
+                - *Employer2                
+                - *Empdesk
+            Capabilities:
+                <<: *ApplicationCapabilities
